@@ -48,7 +48,7 @@ def read_json_to_csv(json_folder, output_csv):
                             data = json.load(json_file)
 
                             try:
-                                url = data['url'].split(' ')
+                                url = data['url'].split(' ')[0]
                                 output = data['query_message']
                                 topic = data['article_title']
                                 instruction = prompt_template.format(instruction_prompt, topic)
