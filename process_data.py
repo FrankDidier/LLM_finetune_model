@@ -2,6 +2,10 @@ import os
 import json
 import csv
 from tqdm import tqdm
+from datasets import load_dataset, Dataset
+from huggingface_hub import hf_hub_url, cached_download
+import pandas as pd
+
 
 instruction_prompt = \
 """
@@ -62,7 +66,32 @@ def read_json_to_csv(json_folder, output_csv):
         print(f"Error: Permission denied while writing to CSV: {e}")
 
 
+def create_and_upload_hf_dataset(csv_path, push_to_hub=False, dataset_url=None, private=False):
+    """
+    Creates a Hugging Face dataset from a CSV file and uploads it to the Hub.
+
+    Args:
+        csv_path (str): Path to the CSV file.
+    """
+
+    df = pd.read_csv(csv_path)
+    dataset = Dataset.from_pandas(df)
+    if push_to_hub:
+        dataset.push_to_hub("DavideTHU/chinese_news_dataset", private=private)
+
+    if dataset_url:
+        print(f"Dataset uploaded to Hugging Face Hub: {dataset_url}")
+
+    return dataset
+
+
 if __name__ == '__main__':
     json_folder = 'raw_data'
     output_csv = 'preprocessed_data/data.csv'
-    read_json_to_csv(json_folder, output_csv)
+    dataset_url = 'https://huggingface.co/datasets/DavideTHU/chinese_news_dataset'
+    push_to_hub = False
+    private = False
+    #read_json_to_csv(json_folder, output_csv)
+    dataset = create_and_upload_hf_dataset(output_csv, push_to_hub=push_to_hub, dataset_url=dataset_url, private=private)
+    print(dataset)
+
